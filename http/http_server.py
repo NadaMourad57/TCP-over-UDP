@@ -1,14 +1,11 @@
-# Copyright 2025 nadamourad
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     https://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+from transport import ReliableUDP
 
+client = ReliableUDP('localhost', 0)
+server_addr = ('localhost', 9000)
+
+client.connect(server_addr)
+
+request = "GET / HTTP/1.0\nHost: localhost\n\n"
+client.sendto(request, server_addr)
+data, _ = client.recvfrom()
+print("Response from server:\n", data)
