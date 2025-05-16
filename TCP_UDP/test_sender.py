@@ -3,17 +3,13 @@ from reliable_udp_sender import ReliableUDPSender
 sender = ReliableUDPSender('127.0.0.1', 12000)
 sender.connect()
 
-# List of messages to send
-messages = [
-    "Hello from sender",
-    "This is message 2",
-    "And here comes message 3",
-    "Final message before close"
-]
+# Normal send
+sender.send("This is a normal message")
 
-# Send each message reliably
-for msg in messages:
-    sender.send(msg)
+# Simulate duplicate
+sender.send("This message will be duplicated", simulate_duplicate=True)
 
-# Graceful connection close
+# Another normal message
+sender.send("Final message")
+
 sender.close()

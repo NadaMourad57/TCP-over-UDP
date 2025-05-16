@@ -28,9 +28,10 @@ class ReliableUDPSender:
             except socket.timeout:
                 print("Timeout waiting for SYN-ACK. Resending SYN...")
                 self.socket.sendto(syn_packet.to_bytes(), self.receiver_addr)
-
-    def send(self, message):
+    def send(self, message, simulate_duplicate=False):
         packet = Packet(self.seq, message)
+
+        # Normal send-retry loop
         while True:
             self.socket.sendto(packet.to_bytes(), self.receiver_addr)
             print(f"Sent packet seq {self.seq}: {message}")
@@ -39,10 +40,15 @@ class ReliableUDPSender:
                 ack_parts = ack_data.decode().split('|')
                 if ack_parts[1] == "ACK" and int(ack_parts[0]) == self.seq:
                     print(f"Received ACK for seq {self.seq}")
-                    self.seq ^= 1
                     break
             except socket.timeout:
                 print("Timeout: retransmitting...")
+
+        if simulate_duplicate:
+            print(f"Simulating duplicate packet for seq {self.seq}")
+            self.socket.sendto(packet.to_bytes(), self.receiver_addr)
+
+        self.seq ^= 1
 
     def close(self):
         fin_packet = Packet(self.seq, "Closing", flag="FIN")
